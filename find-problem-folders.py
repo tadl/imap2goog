@@ -57,10 +57,11 @@ for folder in folderlist_transformed:
     except:
         fn_dict[folder] = 1
 
-# warn about any collisions (where the transformed name matched an existing)
 for key in fn_dict.keys():
+    # warn about any collisions (where the transformed name matched an existing)
     if (fn_dict[key] > 1):
         print "Potential collision with folder name %s" % key
+    # warn about folders whose name is longer than a gmail label's limit
     if (len(key) > 40):
         print "Transformed folder name is >40 chars: %s" % key
 
