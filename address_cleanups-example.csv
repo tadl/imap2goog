@@ -1,0 +1,8 @@
+type,pattern,repl
+"all","<""-UNKNOWN-"".APIGate.GW_DOMAIN>","<someuser@staff.example.net>"
+"all","James Smith\.James Smith\.GW_DOMAIN","jsmith@staff.example.net"
+"all","GW_DOMAIN:james@\[example.com\]","james@example.com"
+"all","""([^""]+)""\.GWIA\.GW_DOMAIN(@staff.example.net)?","\1"
+"all","\.GW_PO\.GW_DOMAIN@","@"
+"all","\.GW_PO\.GW_DOMAIN","staff.example.net"
+"sent_from","@staff\.example\.net","@example.org"
