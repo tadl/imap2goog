@@ -1,2 +1,3 @@
+*.pyc
 migration.cfg
 credentials.csv
