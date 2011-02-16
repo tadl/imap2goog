@@ -15,6 +15,8 @@ def getAllFolders(imap_connection):
         flags, root, name = parseFolder(folder)
         folder_tuple = (flags, root, name)
         folder_data.append(folder_tuple)
+    # 'Work In Progress' is excluded from LIST output. We add it here.
+    folder_data.append((r'(\Noinferiors \Unmarked)', '/', 'Work In Progress'))
     return folder_data
 
 def getMessageCount(imap_connection, folder_name):
