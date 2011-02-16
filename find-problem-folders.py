@@ -76,10 +76,30 @@ for folder in folderlist:
         re_string = '^' + special + '$'
         match = re.search(re_string,folder)
         if (match):
-            special_dict[special] = True
             if (verbose):
                 print 'Found special folder %s' % folder
+            # This SELECT test is somewhat pointless, because we should have
+            # failed with an exception earlier in getMessageCount()
+            try:
+                (stat, data) = imap.select(folder)
+            except:
+                if (verbose):
+                    print 'Exception while selecting %s' % folder
+            if (stat == 'OK'):
+                special_dict[special] = True
+            else:
+                print 'Found, but unable to select special folder %s' % folder
 
 for special in special_dict.keys():
     if (special_dict[special] == False):
         print 'DID NOT find special folder %s' % special
+
+optional_specials = ['Sent Items.dup1']
+
+for folder in folderlist:
+    for special in optional_specials:
+        re_string = '^' + special + '$'
+        match = re.search(re_string,folder)
+        if (match):
+            print "Found OPTIONAL special folder %s" % folder
+
