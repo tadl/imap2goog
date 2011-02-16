@@ -65,4 +65,21 @@ for key in fn_dict.keys():
     if (len(key) > 40):
         print "Transformed folder name is >40 chars: %s" % key
 
+special_folders = ['INBOX','Sent Items','Junk Mail','Trash','Work In Progress',
+ 'Calendar', 'Cabinet','Checklist']
+special_dict = {}
+for special in special_folders:
+    special_dict[special] = False
 
+for folder in folderlist:
+    for special in special_folders:
+        re_string = '^' + special + '$'
+        match = re.search(re_string,folder)
+        if (match):
+            special_dict[special] = True
+            if (verbose):
+                print 'Found special folder %s' % folder
+
+for special in special_dict.keys():
+    if (special_dict[special] == False):
+        print 'DID NOT find special folder %s' % special
