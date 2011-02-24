@@ -31,6 +31,11 @@ imap.debug = 2
 
 folders = getAllFolders(imap)
 
+def print_headers(hdr_dict):
+    for key in hdr_dict:
+        if (hdr_dict[key] != None):
+            print "%s %s" % (key, hdr_dict[key])
+
 for folder in folders:
     flags, root, name = folder
     count = getMessageCount(imap, name)
@@ -45,6 +50,5 @@ for folder in folders:
             hdr_to = msg.get("To")
             hdr_from = msg.get("From")
             hdr_cc = msg.get("Cc")
-            print "TO %s" % hdr_to
-            print "FROM %s" % hdr_from
-            print "CC %s" % hdr_cc
+            hdr_dict = {'TO': hdr_to, 'FROM': hdr_from, 'CC': hdr_cc}
+            print_headers(hdr_dict)
