@@ -80,6 +80,61 @@ def clean_gw_message(msg):
         msg.replace_header('Cc', clean_gw_addresses(msg.get('Cc')))
     return msg
 
+def determine_labels(folder):
+    return_labels = []
+
+    # We set a special label for items found in the inbox
+    # This serves to prevent migration from "un-archiving"
+    # messages that were delivered and archived during the dual-delivery pilot
+    if (folder == "INBOX"):
+        label = "gw_INBOX"
+    else:
+        label = folder
+
+    # These folders receive no labels
+    if (folder in ["Work In Progress", "Sent Items", "Trash"]):
+        label = None
+
+    if (label != None):
+        return_labels.append(label)
+
+    return return_labels
+
+def determine_flags(folder, msg, imap_flags):
+    return_flags = []
+
+    if (folder == "Sent Items"):
+        return_flags.append('IS_SENT')
+
+    if (folder == "Sent Items_OLD.1"):
+        return_flags.append('IS_SENT')
+
+    if (folder == "Sent Items.dup1"):
+        return_flags.append('IS_SENT')
+
+    if (folder == 'Work In Progress' or r'\Draft' in imap_flags):
+        return_flags.append('IS_DRAFT')
+
+    if (r'\Flagged' in imap_flags):
+        return_flags.append('IS_STARRED')
+
+    if (folder == "Trash"):
+        return_flags.append('IS_TRASH')
+
+    if (folder == "Junk Mail"):
+        return_flags.append('IS_TRASH')
+
+    if (folder == "pilot_dual_delivery"):
+        return_flags.append('IS_INBOX')
+
+    if (r'\Seen' not in imap_flags):
+        #XXX: add if dual_delivery_end_date and message is before that
+        date_hdr = msg.get("Date")
+        date_tuple = parsedate(date_hdr)
+        return_flags.append('IS_UNREAD')
+
+    return return_flags
+
 #for testing a single source folder
 #folders = [(None, None, 'ExceptionTest')]
 
@@ -96,38 +151,14 @@ for folder in folders:
         import_flags = []
         import_labels= []
 
-        if (foldername == "INBOX"):
-            folderlabel= "gw_INBOX"
-            #import_flags.append('IS_INBOX')
-        else:
-            folderlabel= foldername
-
-        if (foldername in ["Work In Progress", "Sent Items", "Trash"]):
-            folderlabel= None
-
-        if (folderlabel!= None):
-            import_labels.append(folderlabel)
-
-        if (foldername == 'Sent Items'):
-            import_flags.append('IS_SENT')
-
-        if (foldername == 'Work In Progress' or '\Draft' in flags):
-            import_flags.append('IS_DRAFT')
-
-        if ('\Seen' not in flags):
-            import_flags.append('IS_UNREAD')
-
-        if ('\Flagged' in flags):
-            import_flags.append('IS_STARRED')
-
-        if (foldername == "Trash"):
-            import_flags.append('IS_TRASH')
-
+        #fetch and parse message
         stat, data = imap.uid("fetch", uid, '(RFC822)')
         msgstr = data[0][1]
         msg = email.message_from_string(msgstr)
-        date_hdr = msg.get("Date")
-        date_tuple = parsedate(date_hdr)
+
+        import_flags = determine_flags(foldername, msg, flags)
+        import_labels = determine_labels(foldername)
+
         msg = clean_gw_message(msg)
         if ('IS_SENT' in import_flags):
             msg_from = msg.get('From')
