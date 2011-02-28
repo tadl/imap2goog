@@ -55,7 +55,7 @@ def msg2string(msg):
 
 import csv
 pattern_file = file('address_cleanups.csv', 'r')
-pattern_reader = csv.DictReader(f)
+pattern_reader = csv.DictReader(pattern_file)
 address_cleanups = []
 sent_from_cleanups = []
 for dict in pattern_reader:
