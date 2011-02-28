@@ -26,6 +26,9 @@ op.add_option("-t", "--target-user", dest="target_user")
 if (options.user == None):
     op.error('-u/--user argument is required')
 
+if (options.target_user == None):
+    op.error('-t/--target-user argument is required')
+
 dry_run = options.dry_run
 target_user = options.target_user
 
