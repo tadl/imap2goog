@@ -123,20 +123,12 @@ for folder in folders:
         if (foldername == "Trash"):
             import_flags.append('IS_TRASH')
 
-        #print flags
-        #print import_flags
-        #print import_labels
         stat, data = imap.uid("fetch", uid, '(RFC822)')
         msgstr = data[0][1]
         msg = email.message_from_string(msgstr)
-        #print msg.get("To")
-        #print msg.get("From")
         date_hdr = msg.get("Date")
         date_tuple = parsedate(date_hdr)
-        #print date_tuple
         msg = clean_gw_message(msg)
-        ## HACK for testing!
-        #import_flags.append('IS_SENT')
         if ('IS_SENT' in import_flags):
             msg_from = msg.get('From')
             for dict in sent_from_cleanups:
