@@ -22,12 +22,17 @@ op = OptionParser()
 op.add_option("-n", "--dry-run", action="store_true", dest="dry_run")
 op.add_option("-u", "--user", dest="user")
 op.add_option("-t", "--target-user", dest="target_user")
+op.add_option("-v", "--verbose", action="store_true", dest="verbose")
 (options, args) = op.parse_args()
 if (options.user == None):
     op.error('-u/--user argument is required')
 
 if (options.target_user == None):
     op.error('-t/--target-user argument is required')
+
+verbose = False
+if (options.verbose):
+    verbose = True
 
 dry_run = options.dry_run
 target_user = options.target_user
@@ -171,6 +176,8 @@ for folder in folders:
         if (dry_run):
             print "Dry run! Not actually importing message %s" % msg.get("Message-ID")
         else:
+            if (verbose):
+                print "importing message %s" % msg.get("Message-ID")
             try:
                 #mailentry = m.ImportMail(target_user, msg.as_string(unixfrom=False), import_flags, import_labels)
                 mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
