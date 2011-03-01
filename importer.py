@@ -94,13 +94,13 @@ def determine_labels(folder):
     # We set a special label for items found in the inbox
     # This serves to prevent migration from "un-archiving"
     # messages that were delivered and archived during the dual-delivery pilot
-    if (folder == "INBOX"):
+    if (is_inbox_folder(folder)):
         label = "gw_INBOX"
     else:
         label = folder
 
     # These folders receive no labels
-    if (folder in ["Work In Progress", "Sent Items", "Trash"]):
+    if (folder in ["Work In Progress", "Trash"] or is_sent_folder(folder)):
         label = None
 
     if (label != None):
@@ -111,13 +111,7 @@ def determine_labels(folder):
 def determine_flags(folder, msg, imap_flags):
     return_flags = []
 
-    if (folder == "Sent Items"):
-        return_flags.append('IS_SENT')
-
-    if (folder == "Sent Items_OLD.1"):
-        return_flags.append('IS_SENT')
-
-    if (folder == "Sent Items.dup1"):
+    if (is_sent_folder(folder)):
         return_flags.append('IS_SENT')
 
     if (folder == 'Work In Progress' or r'\Draft' in imap_flags):
