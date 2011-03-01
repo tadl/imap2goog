@@ -47,8 +47,10 @@ for folder in folders:
         else:
             msgstr = data[0][1]
             msg = email.message_from_string(msgstr)
+            hdr_id = msg.get("Message-ID")
+            hdr_date = msg.get("Date")
             hdr_to = msg.get("To")
             hdr_from = msg.get("From")
             hdr_cc = msg.get("Cc")
-            hdr_dict = {'TO': hdr_to, 'FROM': hdr_from, 'CC': hdr_cc}
+            hdr_dict = {'ID': hdr_id, 'DATE': hdr_date, 'TO': hdr_to, 'FROM': hdr_from, 'CC': hdr_cc}
             print_headers(hdr_dict)
