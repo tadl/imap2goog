@@ -37,6 +37,10 @@ for folder in folders:
     count = getMessageCount(imap, name)
     if (verbose):
         print 'Folder "%s" has %s messages.' % (name, count)
+        if (is_inbox_folder(name)):
+            print 'Folder "%s" is an inbox-equivalent.' % name
+        if (is_sent_folder(name)):
+            print 'Folder "%s" is a sent-items-equivalent.' % name
     # stuff all source folder names into list
     folderlist.append(name)
     if (count == 4962):
