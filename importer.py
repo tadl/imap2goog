@@ -145,7 +145,7 @@ for folder in folders:
     flags, root, foldername = folder
     if (foldername == 'Calendar'):
         print "Skipping folder %s" % foldername
-        break
+        continue
     count = getMessageCount(imap, foldername)
     allcount += count
     print "%s has %s messages" % (foldername, count)
