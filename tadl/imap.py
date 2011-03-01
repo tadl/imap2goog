@@ -54,3 +54,24 @@ def getCredentials(username, filename):
         if (dict['user'] == username):
             return dict['password']
 
+def is_inbox_folder(foldername):
+    if (foldername == "INBOX"):
+        return True
+
+    if (re.search(r'^(Cabinet/)?gw_INBOX', foldername)):
+        return True
+
+    return False
+
+def is_sent_folder(foldername):
+    if (foldername == "Sent Items"):
+        return True
+
+    if (re.search(r'^Sent Items\.dup.*', foldername)):
+        return True
+
+    if (re.search(r'^Sent Items_OLD.*', foldername)):
+        return True
+
+    return False
+
