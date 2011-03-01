@@ -175,11 +175,8 @@ for folder in folders:
                 #mailentry = m.ImportMail(target_user, msg.as_string(unixfrom=False), import_flags, import_labels)
                 mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
             except AppsForYourDomainException, E:
-                print "Caught expected exception, continuing on!"
-                print "Exception content was: %s" % E
-                print msg.get("Message-ID")
-                print msg2string(msg)
-            
+                print "Caught exception, continuing on!"
+                print "Message %s Exception content was: %s" % (msg.get("Message-ID"), E)
 
 print "%s total messages" % allcount
 
