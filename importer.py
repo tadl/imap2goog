@@ -92,6 +92,9 @@ def clean_gw_message(msg):
 def determine_labels(folder):
     return_labels = []
 
+    #Strip prefix Cabinet/ if it appears
+    folder = re.sub(r'^Cabinet/','',folder)
+
     # We set a special label for items found in the inbox
     # This serves to prevent migration from "un-archiving"
     # messages that were delivered and archived during the dual-delivery pilot
