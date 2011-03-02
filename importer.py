@@ -3,6 +3,7 @@
 from imaplib import IMAP4, ParseFlags
 import email
 import re
+import time
 from email.utils import parsedate
 from cStringIO import StringIO
 from email.generator import Generator
@@ -176,9 +177,25 @@ for folder in folders:
                 #mailentry = m.ImportMail(target_user, msg.as_string(unixfrom=False), import_flags, import_labels)
                 mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
             except AppsForYourDomainException, E:
-                print "Caught exception, continuing on!"
                 print "Message %s Exception content was: %s" % (msg.get("Message-ID"), E)
+                argdict = E.args[0]
+                if (argdict['status'] == 400 and re.match(r'^Permanent failure', argdict['body'])):
+                    print "FAILED: Permanent failure on %s, not retrying." % msg.get("Message-ID")
+                else:
+                    print "Potentially non-permanent failure on %s, sleeping and retrying." % msg.get("Message-ID")
+                    time.sleep(30)
+                    try:
+                        mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
+
+                    except:
+                        print "FAILED: After retry, got exception: %s" % E
+
+            except:
+                print "Caught UNEXPECTED exception. Sleeping 30s and trying again."
+                time.sleep(30)
+                try:
+                    mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
+                except E:
+                    print "FAILED: After retry, got exception: %s" % E
 
 print "%s total messages" % allcount
-
-
