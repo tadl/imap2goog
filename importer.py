@@ -138,6 +138,31 @@ def determine_flags(folder, msg, imap_flags):
 
     return return_flags
 
+def ImportMessage(target_user, msg, import_flags, import_labels):
+    tries=10
+    tried=0
+    delay=1
+    max_delay = 60
+    while (tries > 0):
+        try:
+            mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
+        except AppsForYourDomainException, E:
+            argdict = E.args[0]
+            if (argdict['status'] == 400):
+                raise E
+            else:
+                if (argdict['status'] != 503):
+                    print "Caught exception on %s and re-trying: %s" % (msg.get("Message-ID"), E)
+        else:
+            return mailentry
+        tries -= 1
+        tried += 1
+        print "Sleeping for %s seconds" % delay
+        time.sleep(delay)
+        if (delay < max_delay):
+            delay *= 2
+    raise Exception('Unsuccessful after %s retries' % tried)
+
 #for testing a single source folder
 #folders = [(None, None, 'ExceptionTest')]
 
@@ -175,27 +200,9 @@ for folder in folders:
                 print "importing message %s" % msg.get("Message-ID")
             try:
                 #mailentry = m.ImportMail(target_user, msg.as_string(unixfrom=False), import_flags, import_labels)
-                mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
-            except AppsForYourDomainException, E:
-                print "Message %s Exception content was: %s" % (msg.get("Message-ID"), E)
-                argdict = E.args[0]
-                if (argdict['status'] == 400 and re.match(r'^Permanent failure', argdict['body'])):
-                    print "FAILED: Permanent failure on %s, not retrying." % msg.get("Message-ID")
-                else:
-                    print "Potentially non-permanent failure on %s, sleeping and retrying." % msg.get("Message-ID")
-                    time.sleep(30)
-                    try:
-                        mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
-
-                    except:
-                        print "FAILED: After retry, got exception: %s" % E
-
-            except:
-                print "Caught UNEXPECTED exception. Sleeping 30s and trying again."
-                time.sleep(30)
-                try:
-                    mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
-                except E:
-                    print "FAILED: After retry, got exception: %s" % E
+                #mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
+                mailentry = ImportMessage(target_user, msg, import_flags, import_labels)
+            except Exception, E:
+                print "FAILED: Message %s exception %s" % (msg.get("Message-ID"), E)
 
 print "%s total messages" % allcount
