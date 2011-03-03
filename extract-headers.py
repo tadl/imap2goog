@@ -9,6 +9,7 @@ from optparse import OptionParser
 op = OptionParser()
 op.add_option("-u", "--user", dest="user")
 op.add_option("-v", "--verbose", action="store_true", dest="verbose")
+op.add_option("-c", "--csv", action="store_true", dest="csv")
 (options, args) = op.parse_args()
 if (options.user == None):
     op.error('-u/--user argument is required')
@@ -16,6 +17,16 @@ if (options.user == None):
 verbose = False
 if (options.verbose):
     verbose = True
+
+output_csv = False
+if (options.csv):
+    output_csv = True
+
+if (output_csv):
+    import csv
+    import sys
+    headerWriter = csv.DictWriter(sys.stdout,
+        ['FOLDER', 'ID', 'DATE', 'TO', 'FROM', 'CC'])
 
 import ConfigParser
 config = ConfigParser.ConfigParser()
@@ -32,9 +43,12 @@ imap.debug = 2
 folders = getAllFolders(imap)
 
 def print_headers(hdr_dict):
-    for key in hdr_dict:
-        if (hdr_dict[key] != None):
-            print "%s %s" % (key, hdr_dict[key])
+    if (output_csv):
+        headerWriter.writerow(hdr_dict)
+    else:
+        for key in hdr_dict:
+            if (hdr_dict[key] != None):
+                print "%s %s" % (key, hdr_dict[key])
 
 for folder in folders:
     flags, root, name = folder
@@ -52,5 +66,6 @@ for folder in folders:
             hdr_to = msg.get("To")
             hdr_from = msg.get("From")
             hdr_cc = msg.get("Cc")
-            hdr_dict = {'ID': hdr_id, 'DATE': hdr_date, 'TO': hdr_to, 'FROM': hdr_from, 'CC': hdr_cc}
+            hdr_dict = {'FOLDER': name, 'ID': hdr_id, 'DATE': hdr_date,
+                        'TO': hdr_to, 'FROM': hdr_from, 'CC': hdr_cc}
             print_headers(hdr_dict)
