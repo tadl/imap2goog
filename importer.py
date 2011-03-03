@@ -55,10 +55,10 @@ from gdata.apps.service import AppsForYourDomainException
 m = MigrationService(domain=ga_domain)
 m.ClientLogin(ga_user, ga_pass)
 
-def msg2string(msg):
+def msg2string(msg, unixfrom=False):
     fp = StringIO()
     g = Generator(fp, mangle_from_=False)
-    g.flatten(msg)
+    g.flatten(msg, unixfrom=unixfrom)
     text = fp.getvalue()
     return text
 
@@ -166,6 +166,12 @@ def ImportMessage(target_user, msg, import_flags, import_labels):
             delay *= 2
     raise Exception('Unsuccessful after %s retries' % tried)
 
+def SaveFailedMessage(failed_message):
+    mbox_filename = imap_user + '.mbox'
+    mbox_target = open(mbox_filename, 'ab')
+    mbox_target.write(msg2string(failed_message, unixfrom=True))
+    mbox_target.close()
+
 #for testing a single source folder
 #folders = [(None, None, 'ExceptionTest')]
 
@@ -207,5 +213,6 @@ for folder in folders:
                 mailentry = ImportMessage(target_user, msg, import_flags, import_labels)
             except Exception, E:
                 print "FAILED: Message %s exception %s" % (msg.get("Message-ID"), E)
+                SaveFailedMessage(msg)
 
 print "%s total messages" % allcount
