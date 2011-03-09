@@ -49,6 +49,7 @@ for folder in folders:
 folderlist_transformed = []
 for fn in folderlist:
     new_fn = re.sub(r'^Cabinet/','',fn)
+    new_fn = re.sub(r'_overflow.$', '', new_fn)
     folderlist_transformed.append(new_fn)
     if (verbose):
         print "Folder %s => %s" % (fn, new_fn)
