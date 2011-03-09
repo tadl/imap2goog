@@ -180,7 +180,7 @@ def SaveFailedMessage(failed_message):
 
 for folder in folders:
     flags, root, foldername = folder
-    if (foldername == 'Calendar'):
+    if (foldername in ['Calendar', 'Do Not Import']):
         print "Skipping folder %s" % foldername
         continue
     count = getMessageCount(imap, foldername)
