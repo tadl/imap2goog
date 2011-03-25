@@ -1,0 +1,38 @@
+imap2goog Readme
+================
+Jeff Godin <jgodin@tadl.org>
+
+Purpose
+-------
+
+This tool can migrate e-mail from a GroupWise 6.5 system to 
+Google Apps. It uses IMAP to extract messages from GroupWise
+and the Google Apps Migration API to inject them into Google
+Apps.
+
+What is not migrated
+~~~~~~~~~~~~~~~~~~~~
+
+The following items are not migrated. Please read on for
+suggested ways to migrate this data.
+
+* Contacts
+* Calendar items
+* Documents
+
+Contacts
+^^^^^^^^
+Not exposed via IMAP. Export as VCF from GroupWise client, import
+into Google Apps. Requires user credentials to export, import.
+
+Calendars
+^^^^^^^^^
+Exposed via IMAP. Tool to export is planned. Import to Google apps
+either as end user or as resource calendar.
+
+Documents
+^^^^^^^^^
+Not exposed via IMAP.
+
+Search for documents in GroupWise client, handle manually.
+
