@@ -54,6 +54,7 @@ def SaveMessage(message):
 vcalendar_filename = imap_user + '.vcalendar'
 vcalendar_target = open(vcalendar_filename, 'wb')
 
+# Begin the vcalendar object to contain our vevent objects
 vcalendar_target.write('BEGIN:VCALENDAR\n')
 vcalendar_target.write('VERSION:2.0\n')
 
@@ -76,4 +77,6 @@ for (uid, flags) in messageflags:
             if re.search(r'^END:VCALENDAR', line):
                 continue
             vcalendar_target.write(line + '\n')
+
+# End the vcalendar object
 vcalendar_target.write('END:VCALENDAR\n')
