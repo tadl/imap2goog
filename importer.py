@@ -169,10 +169,18 @@ def ImportMessage(target_user, msg, import_flags, import_labels):
             delay *= 2
     raise Exception('Unsuccessful after %s retries' % tried)
 
-def SaveFailedMessage(failed_message):
+def SaveFailedMessage(message_to_save):
     mbox_filename = imap_user + '.mbox'
+    _saveMessage(message_to_save, mbox_filename)
+
+def SaveSkippedMessage(message_to_save):
+    mbox_filename = imap_user + '_skipped.mbox'
+    _saveMessage(message_to_save, mbox_filename)
+
+def _saveMessage(message_to_save, mbox_filename):
     mbox_target = open(mbox_filename, 'ab')
-    mbox_target.write(msg2string(failed_message, unixfrom=True))
+    mbox_target.write(msg2string(message_to_save, unixfrom=True))
+    mbox_target.write('\n')
     mbox_target.close()
 
 #for testing a single source folder
