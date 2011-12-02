@@ -23,6 +23,8 @@ op = OptionParser()
 op.add_option("-n", "--dry-run", action="store_true", dest="dry_run")
 op.add_option("-u", "--user", dest="user")
 op.add_option("-t", "--target-user", dest="target_user")
+op.add_option("--skip-delivered-by-google", action="store_true", dest="skip_delivered_by_google")
+op.add_option("--receiving-from-google-host", dest="receiving_from_google_host")
 op.add_option("-v", "--verbose", action="store_true", dest="verbose")
 (options, args) = op.parse_args()
 if (options.user == None):
@@ -30,6 +32,12 @@ if (options.user == None):
 
 if (options.target_user == None):
     op.error('-t/--target-user argument is required')
+
+skip_delivered_by_google = False
+if (options.skip_delivered_by_google):
+    skip_delivered_by_google = True
+
+receiving_from_google_host = options.receiving_from_google_host
 
 verbose = False
 if (options.verbose):
@@ -206,6 +214,7 @@ for folder in folders:
 
         import_flags = determine_flags(foldername, msg, flags)
         import_labels = determine_labels(foldername)
+        skip_reason = None
 
         msg = clean_gw_message(msg)
         if ('IS_SENT' in import_flags):
@@ -213,17 +222,28 @@ for folder in folders:
             for dict in sent_from_cleanups:
                 msg_from = re.sub(dict['pattern'], dict['repl'], msg_from)
             msg.replace_header('From', msg_from)
-        if (dry_run):
-            print "Dry run! Not actually importing message %s" % msg.get("Message-ID")
+        if (skip_delivered_by_google):
+            if (msg.has_key('Delivered-To')):
+                receiveds = msg.get_all('Received')
+                for received in receiveds:
+                    if ('for <' + imap_user + '@' + receiving_from_google_host + '>' in received):
+                        skip_reason = 'delivered_by_google'
+
+        if (skip_reason):
+            if verbose: print "Skipping message %s reason: %s" % (msg.get('Message-ID'), skip_reason)
+            SaveSkippedMessage(msg)
         else:
-            if (verbose):
-                print "importing message %s" % msg.get("Message-ID")
-            try:
-                #mailentry = m.ImportMail(target_user, msg.as_string(unixfrom=False), import_flags, import_labels)
-                #mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
-                mailentry = ImportMessage(target_user, msg, import_flags, import_labels)
-            except Exception, E:
-                print "FAILED: Message %s exception %s" % (msg.get("Message-ID"), E)
-                SaveFailedMessage(msg)
+            if (dry_run):
+                print "Dry run! Not actually importing message %s" % msg.get("Message-ID")
+            else:
+                if (verbose):
+                    print "importing message %s" % msg.get("Message-ID")
+                try:
+                    #mailentry = m.ImportMail(target_user, msg.as_string(unixfrom=False), import_flags, import_labels)
+                    #mailentry = m.ImportMail(target_user, msg2string(msg), import_flags, import_labels)
+                    mailentry = ImportMessage(target_user, msg, import_flags, import_labels)
+                except Exception, E:
+                    print "FAILED: Message %s exception %s" % (msg.get("Message-ID"), E)
+                    SaveFailedMessage(msg)
 
 print "%s total messages" % allcount
