@@ -219,9 +219,10 @@ for folder in folders:
         msg = clean_gw_message(msg)
         if ('IS_SENT' in import_flags):
             msg_from = msg.get('From')
-            for dict in sent_from_cleanups:
-                msg_from = re.sub(dict['pattern'], dict['repl'], msg_from)
-            msg.replace_header('From', msg_from)
+            if (msg_from != None):
+                for dict in sent_from_cleanups:
+                    msg_from = re.sub(dict['pattern'], dict['repl'], msg_from)
+                msg.replace_header('From', msg_from)
         if (skip_delivered_by_google):
             if (msg.has_key('Delivered-To')):
                 receiveds = msg.get_all('Received')
