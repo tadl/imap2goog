@@ -10,6 +10,7 @@ op = OptionParser()
 op.add_option("-u", "--user", dest="user")
 op.add_option("-v", "--verbose", action="store_true", dest="verbose")
 op.add_option("-c", "--csv", action="store_true", dest="csv")
+op.add_option("--noout", action="store_true", dest="noout")
 (options, args) = op.parse_args()
 if (options.user == None):
     op.error('-u/--user argument is required')
@@ -17,6 +18,10 @@ if (options.user == None):
 verbose = False
 if (options.verbose):
     verbose = True
+
+noout = False
+if (options.noout):
+    noout = True
 
 output_csv = False
 if (options.csv):
@@ -43,6 +48,7 @@ imap.debug = 2
 folders = getAllFolders(imap)
 
 def print_headers(hdr_dict):
+    if noout: return
     if (output_csv):
         headerWriter.writerow(hdr_dict)
     else:
@@ -52,9 +58,11 @@ def print_headers(hdr_dict):
 
 for folder in folders:
     flags, root, name = folder
+    if verbose: print "Getting message count for folder %s" % name
     count = getMessageCount(imap, name)
     messageflags = getFlags(imap)
     for (uid, flags) in messageflags:
+        if verbose: print "Fetching message UID %s with flags %s in folder %s" % (uid, flags, name)
         stat, data = imap.uid("fetch", uid, "(BODY.PEEK[HEADER])")
         if (stat != "OK"):
             print "Fetch failed for uid %s" % uid
